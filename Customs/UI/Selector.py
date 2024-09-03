@@ -1,4 +1,5 @@
 import discord
+from Customs.Functions import checkClr
 from typing import List, Optional
 
 class SelectionView(discord.ui.View):
@@ -16,13 +17,14 @@ class SelectionView(discord.ui.View):
     # @discord.ui.select(placeholder="Select Number", options=self.SELECTIONS, max_values=1)
     async def selectorCall(self, interaction: discord.Interaction) -> None:
         await interaction.response.defer()
-        if self.clrOnly and self.clrOnly.id == interaction.user.id:
+        if checkClr(self.clrOnly, interaction):
+            self.stop()
             await self.selectFunc(self.selector.values[0])
 
     @discord.ui.button(label="x", style=discord.ButtonStyle.danger, row=2)
     async def ExitSelector(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
         await interaction.response.defer()
-        if self.clrOnly and self.clrOnly.id == interaction.user.id:
+        if checkClr(self.clrOnly, interaction):
             self.stop()
             await self.exitFunc()
 

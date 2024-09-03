@@ -40,6 +40,9 @@ def Threader(FunctionList, ParameterList) -> (list | bool):
         return False
     return Results
 
+def checkClr(clr:discord.Member, i:discord.Interaction) -> bool:
+    return (not clr or clr.id == i.user.id)
+
 class IsAdmin(app_commands.CheckFailure): pass
 def ChAdmin(ctx:discord.Interaction):
     if ctx.user.guild_permissions.administrator: return True

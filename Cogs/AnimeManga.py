@@ -3,6 +3,7 @@ from discord.ext import commands
 # import mal
 from discord import app_commands
 from Setup import MClient, MALsearch
+from malclient import BadRequest
 from Customs.Functions import SendWait, RefreshMAL
 # from Customs.Navigators import ButtonNavigator as Navigator
 from Customs.UI.Selector import SelectionView as Selector
@@ -75,16 +76,19 @@ class AnimeManga(commands.Cog):
             if MangaSpinC: AEm.add_field(name="Spin Off:", value=MangaSpinC, inline=False)
             await ctx.edit_original_response(embed=AEm)
         
-        if not manga: await SendWait(ctx, "No Arguments :no_mouth:"); return
-        MangaInput = manga
+        # if not manga: await SendWait(ctx, "No Arguments :no_mouth:"); return
+        # MangaInput = manga
         C = 0
         SrchManga = []
         await ctx.response.send_message(embed=discord.Embed(title=":mag: Searching...", color=0x3695BA))
-        SAEm = discord.Embed(title=f":mag: Results for '{MangaInput}'", color=0x3695BA)
-        for MangaResult in MClient.search_manga(MangaInput, limit=10, fields=MALsearch):
-            C += 1
-            SAEm.add_field(name="\u200b", value=f"{C}. `{MangaResult.title}` **({MangaResult.media_type.value})**", inline=False)
-            SrchManga.append(MangaResult)
+        SAEm = discord.Embed(title=f":mag: Results for '{manga}'", color=0x3695BA)
+        try:
+            for MangaResult in MClient.search_manga(manga, limit=10, fields=MALsearch):
+                C += 1
+                SAEm.add_field(name="\u200b", value=f"{C}. `{MangaResult.title}` **({MangaResult.media_type.value})**", inline=False)
+                SrchManga.append(MangaResult)
+        except BadRequest: pass
+        if not C: await ctx.edit_original_response(embed=discord.Embed(title=f':mag: No Results Found for "{manga}" :x:', color=0x3FC0FF)); return
         await ctx.edit_original_response(embed=SAEm, view=Selector(getSel, exTimOt, list(range(1, C+1))))
 
     @app_commands.command(name="anime", description="Retrieves a Anime from MAL.")
@@ -159,16 +163,19 @@ class AnimeManga(commands.Cog):
             # except TypeError: pass
             await ctx.edit_original_response(embed=AEm)
 
-        if not anime: await SendWait(ctx, "No Arguments :no_mouth:"); return
-        AnimeInput = anime
+        # if not anime: await SendWait(ctx, "No Arguments :no_mouth:"); return
+        # AnimeInput = anime
         C = 0
         SrchAnime = []
         await ctx.response.send_message(embed=discord.Embed(title=":mag: Searching...", color=0x3FC0FF))
-        SAEm = discord.Embed(title=f':mag: Results for "{AnimeInput}"', color=0x3FC0FF)
-        for AnimeResult in MClient.search_anime(AnimeInput, limit=10):
-            C += 1
-            SAEm.add_field(name="\u200b", value=f"{C}. `{AnimeResult.title}`", inline=False)#**({AnimeResult.id})**
-            SrchAnime.append(AnimeResult)
+        SAEm = discord.Embed(title=f':mag: Results for "{anime}"', color=0x3FC0FF)
+        try:
+            for AnimeResult in MClient.search_anime(anime, limit=10):
+                C += 1
+                SAEm.add_field(name="\u200b", value=f"{C}. `{AnimeResult.title}`", inline=False)#**({AnimeResult.id})**
+                SrchAnime.append(AnimeResult)
+        except BadRequest: pass
+        if not C: await ctx.edit_original_response(embed=discord.Embed(title=f':mag: No Results Found for "{anime}" :x:', color=0x3FC0FF)); return
         await ctx.edit_original_response(embed=SAEm, view=Selector(getSel, exTimOt, list(range(1, C+1))))
 
     async def cog_load(self) -> None:

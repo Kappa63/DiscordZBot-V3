@@ -1,6 +1,7 @@
 import discord
 from typing import Optional, List
 from Customs.UI.Selector import SelectionView
+from Customs.Functions import checkClr
 
 class NavigationView(discord.ui.View):
     def __init__(self, prevFunc, nextFunc, exitFunc, clrOnly:discord.Member = None) -> None:
@@ -13,33 +14,33 @@ class NavigationView(discord.ui.View):
     @discord.ui.button(label="<<", style=discord.ButtonStyle.primary, row=1)
     async def FarPrevPage(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
         await interaction.response.defer()
-        if self.clrOnly and self.clrOnly.id == interaction.user.id:
+        if checkClr(self.clrOnly, interaction):
             await self.prevFunc(10)
 
     @discord.ui.button(label="<", style=discord.ButtonStyle.primary, row=1)
     async def PrevPage(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
         await interaction.response.defer()
-        if self.clrOnly and self.clrOnly.id == interaction.user.id:
+        if checkClr(self.clrOnly, interaction):
             await self.prevFunc(1)
 
     @discord.ui.button(label="x", style=discord.ButtonStyle.danger, row=1)
     async def ExitNav(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
         await interaction.response.defer()
-        self.stop()
-        if self.clrOnly and self.clrOnly.id == interaction.user.id:
+        if checkClr(self.clrOnly, interaction):
+            self.stop()
             await self.exitFunc()
 
 
     @discord.ui.button(label=">", style=discord.ButtonStyle.primary, row=1)
     async def NextPage(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
         await interaction.response.defer()
-        if self.clrOnly and self.clrOnly.id == interaction.user.id:
+        if checkClr(self.clrOnly, interaction):
             await self.nextFunc(1)
 
     @discord.ui.button(label=">>", style=discord.ButtonStyle.primary, row=1)
     async def FarNextPage(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
         await interaction.response.defer()
-        if self.clrOnly and self.clrOnly.id == interaction.user.id:
+        if checkClr(self.clrOnly, interaction):
             await self.nextFunc(10)
 
     async def on_timeout(self) -> None:
@@ -67,7 +68,7 @@ class NavigationWithSelectorView(NavigationView):
 
     async def selectorCall(self, interaction: discord.Interaction) -> None:
         await interaction.response.defer()
-        if self.clrOnly and self.clrOnly.id == interaction.user.id:
+        if checkClr(self.clrOnly, interaction):
             self.selector.placeholder = f'{self.lblEmoji[self.selector.values[0]]} {self.selector.values[0]}'
             await interaction.edit_original_response(view=self)
             await self.selectFunc(self.selector.values[0])

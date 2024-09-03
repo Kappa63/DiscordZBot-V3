@@ -511,7 +511,7 @@ class Socials(commands.Cog):
         if not mltr: await SendWait(ctx, "No Arguments"); return
         await ctx.response.defer(thinking=True)
         # ArgumentHandle = list(args)
-        TierApplicable = {"Tier 2 Super": 1, "Tier 3 Legend": 2, "Tier 4 Ultimate": 4}
+        # TierApplicable = {"Tier 2 Super": 1, "Tier 3 Legend": 2, "Tier 4 Ultimate": 4}
         # TierLimit = TierApplicable[GetPatreonTier(ctx.author.id)]
         TierLimit = 4
         if not Rdt.count_documents({"IDd": ctx.user.id}):
@@ -519,12 +519,13 @@ class Socials(commands.Cog):
             await SendWait(ctx, f"Added the Multireddit ({mltr}), you can now add and remove subreddits from it.")  
             return
         User = Rdt.find({"IDd": ctx.user.id})[0]
-        if len(User) < TierLimit:
+        print(User)
+        if len(User)-2 < TierLimit:
             #- for Multireddit in User:
             if mltr in User: await SendWait(ctx, f"Multireddit ({mltr}) Already Exists"); return
             else: Rdt.update_one(User, {"$set": {mltr: []}})
             await SendWait(ctx, f"Added the Multireddit ({mltr}), you can now add and remove subreddits from it.")
-        else: await SendWait(ctx, "You already have the maximum amount of Multireddits. You can use 'zmultireddit' to see your multireddits or check 'zpatreon' to know more about limits") 
+        else: await SendWait(ctx, "You already have the maximum amount of Multireddits.") 
 
     # @commands.check(ChPatreonT2)  aliases=["del"]
     @MultiredditSlashes.command(name="delete", description="Delete an Existing Multireddit.")
@@ -559,7 +560,7 @@ class Socials(commands.Cog):
         await ctx.response.defer(thinking=True)
         # Multi, Subs = args[0], list(args[1:])
         subs = subs.split(" ")
-        User = Rdt.find({"IDd": ctx.user.id})[0]
+        User = Rdt.find_one({"IDd": ctx.user.id})
         Added, NotAdded = [], []
         if mltr in User and mltr not in ["IDd", "_id"]:
             for Sub in subs:
@@ -590,7 +591,7 @@ class Socials(commands.Cog):
         subs = subs.split(" ")
         Removed, NotRemoved = [], []
         if not Rdt.count_documents({"IDd": ctx.user.id}): await SendWait(ctx, "You don't have any Multireddits"); return
-        User = Rdt.find({"IDd": ctx.user.id})[0]
+        User = Rdt.find_one({"IDd": ctx.user.id})
         if mltr in User and mltr not in ["IDd","_id"]:
             Remover = User[mltr]
             for Sub in subs:
@@ -601,8 +602,7 @@ class Socials(commands.Cog):
                     Removed.append(Sub)
             
             if Removed: 
-                # print({"$set": {mltr: Remover}})
-                Rdt.update_one(User, {"$set": {mltr: Remover}})
+                Rdt.update_one({"_id":User["_id"]}, {"$set": {mltr: Remover}})
                 await SendWait(ctx, f'Removed the following Subreddit(s) from Multireddit: `{", ".join(Removed)}`')
             if NotRemoved: await SendWait(ctx, f"Following Subreddit(s) didn't exist in Multireddit: `{', '.join(NotRemoved)}`")
         else: await SendWait(ctx, f"That Multireddit ({mltr}) does not exist. Check if the name is right or create it.")
