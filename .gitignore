@@ -1,0 +1,13 @@
+Test.py
+__pycache__
+.env
+Exclusions
+Assets
+Send.py
+lib
+lib64
+include
+etc
+bin
+share
+pyvenv.cfg
